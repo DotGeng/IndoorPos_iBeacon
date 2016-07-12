@@ -83,7 +83,7 @@ public class Trilateral implements Dealer{
 		/*如果每次参加运算的基站数大于3，可以用StringBuilder拼接sql语句*/
 		Connection conn = DBUtil.getConnection();
 		try {
-			PreparedStatement stat = conn.prepareStatement("select base_id,x_axis,y_axis from base_station where base_id =?");
+			PreparedStatement stat = conn.prepareStatement("select base_id,x_axis,y_axis from base_station where base_id in (?,?,?)");
 			for(int k=0;k<j;k++){
 				stat.setString(k+1, ids[k]);
 			}
