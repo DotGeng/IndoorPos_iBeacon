@@ -11,3 +11,5 @@ This is an tool for Indoo position use BLE.
 6.20更新 新加入了写程序时进行单元测试的类。
 
 7.12更新 修正了算法的sql语句。
+
+7.13更新 添加了定位结果对象，封装以用来持久化定位结果；修正了服务器端的socket代码。
