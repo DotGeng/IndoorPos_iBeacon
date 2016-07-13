@@ -9,3 +9,5 @@ This is an tool for Indoo position use BLE.
 6.19更新 新加入一个用java Swing写的一个简单的桌面端显示程序。
 
 6.20更新 新加入了写程序时进行单元测试的类。
+
+7.12更新 修正了算法的sql语句。
