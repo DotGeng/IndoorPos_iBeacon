@@ -38,9 +38,9 @@ public class Trilateral implements Dealer{
 		DoGroup doGrouper = new DoGroup();
 		ArrayList<BleBase> uniqueBases = doGrouper.doGroup(bases);
 		
-		double[] Location = calculate(uniqueBases);
+		double[] location = calculate(uniqueBases);
 		
-		return Location;
+		return location;
 	}
 	
 	 /**
