@@ -45,12 +45,12 @@ public class Trilateral implements Dealer{
 	
 	 /**
      * <p>
-     * 求出一组基站通过距离加权后的坐标
+     * 求定位坐标
      * </p>
      * 
      * @param bases	接收到的一组基站对象列表，此处列表中的基站应当是id各异的。
      * 
-     * @return double[]	返回一组基站通过距离加权后的坐标。
+     * @return double[]	返回定位坐标。
      *    
      */
 	public double[] calculate(List<BleBase> bases){
