@@ -123,7 +123,7 @@ public class DoGroup {
 				}
 	        	r = count/(len-2*len2);
 	        }else if(len==1){
-	        	/*如果收到的数值个数等于1，就用该数值*/
+	        	/*如果收到的数值个数等于1，就用该数*/
 		        r = rssis.get(0);
 	        }else{
 	        	/*如果收到的数值个数小于4，则求中位数*/
