@@ -58,10 +58,12 @@ public class Trilateral implements Dealer{
 		/*基站的id与坐标*/
 		Map<String, double[]> basesLocation =new HashMap<String, double[]>();
 		
-		/*距离数组*/
-		double[] distanceArray = new double[3];
+		int baseNum = bases.size();
 		
-		String[] ids = new String[3];
+		/*距离数组*/
+		double[] distanceArray = new double[baseNum];
+		
+		String[] ids = new String[baseNum];
 		
 		double[] location = new double[2];
 		
@@ -83,10 +85,14 @@ public class Trilateral implements Dealer{
 		/*如果每次参加运算的基站数大于3，可以用StringBuilder拼接sql语句*/
 		Connection conn = DBUtil.getConnection();
 		try {
-			PreparedStatement stat = conn.prepareStatement("select base_id,x_axis,y_axis from base_station where base_id in (?,?,?)");
-			for(int k=0;k<j;k++){
-				stat.setString(k+1, ids[k]);
+			StringBuilder str = new StringBuilder();
+			str.append("select base_id,x_axis,y_axis from base_station where base_id in (");
+			str.append(ids[0]);
+			for(int k=1;k<j;k++){
+				str.append(","+ids[k]);
 			}
+			str.append(")");
+			PreparedStatement stat = conn.prepareStatement(str.toString());
 			ResultSet rs = stat.executeQuery();
 			while(rs.next()){
 				double[] loc = new double[2];
@@ -101,22 +107,22 @@ public class Trilateral implements Dealer{
 		
 		int disArrayLength = distanceArray.length;
 		
-		double[][] a = new double[2][2];
+		double[][] a = new double[baseNum-1][2];
 		
-		double[][] b = new double[2][1];
+		double[][] b = new double[baseNum-1][1];
 		
 		/*数组a初始化*/
 		for(int i = 0; i < 2; i ++ ) {
- 			a[i][0] = 2*(basesLocation.get(ids[i])[0]-basesLocation.get(ids[2])[0]);
-			a[i][1] = 2*(basesLocation.get(ids[i])[1]-basesLocation.get(ids[2])[1]);
+ 			a[i][0] = 2*(basesLocation.get(ids[i])[0]-basesLocation.get(ids[baseNum-1])[0]);
+			a[i][1] = 2*(basesLocation.get(ids[i])[1]-basesLocation.get(ids[baseNum-1])[1]);
 		}
 		
 		/*数组b初始化*/
 		for(int i = 0; i < 2; i ++ ) {
 			b[i][0] = Math.pow(basesLocation.get(ids[i])[0], 2) 
-					- Math.pow(basesLocation.get(ids[2])[0], 2)
+					- Math.pow(basesLocation.get(ids[baseNum-1])[0], 2)
 					+ Math.pow(basesLocation.get(ids[i])[1], 2)
-					- Math.pow(basesLocation.get(ids[2])[1], 2)
+					- Math.pow(basesLocation.get(ids[baseNum-1])[1], 2)
 					+ Math.pow(distanceArray[disArrayLength-1], 2)
 					- Math.pow(distanceArray[i],2);
 		}
