@@ -6,7 +6,7 @@ This is an tool for Indoor positioning using iBeacon.
 
 6.18更新 新加入一个获取jdbc连接的工具类。
 
-6.19更新 新加入一个用java Swing写的一个简单的桌面端显示程序，以及一个服务器端启动入口类。
+6.19更新 新加入一个用Java Swing写的一个简单的桌面端显示程序，以及一个服务器端启动入口类。
 
 6.20更新 新加入了写程序时进行单元测试的类。
 
