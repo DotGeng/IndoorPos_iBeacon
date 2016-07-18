@@ -16,7 +16,7 @@ public interface Dealer {
      * 求定位终端坐标
      * </p>
      * 
-     * @param bases	接收到的一组基站对象列表
+     * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
      * 
      * @return double[]	返回定位坐标。
      *    
