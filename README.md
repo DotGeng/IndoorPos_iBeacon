@@ -13,3 +13,5 @@ This is an tool for Indoor positioning using iBeacon.
 7.12更新 修正了算法的sql语句。
 
 7.13更新 添加了定位结果对象，封装以用来持久化定位结果；修正了服务器端的socket代码；修正了每组基站有效值的处理。
+
+7.18更新 优化了服务器端与定位终传输的数据，减少网络传输流量。
