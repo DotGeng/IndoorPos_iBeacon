@@ -1,9 +1,8 @@
-package com.hqu.indoor_pos.util;
+package com.hqu.indoor_pos.util2;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
@@ -11,17 +10,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import com.hqu.indoor_pos.Centroid;
 import com.hqu.indoor_pos.DBUtil;
 import com.hqu.indoor_pos.Dealer;
+import com.hqu.indoor_pos.Trilateral;
 import com.hqu.indoor_pos.WeightTrilateral;
-import com.hqu.indoor_pos.bean.BleBase;
 import com.hqu.indoor_pos.bean.EnvFactor;
 import com.hqu.indoor_pos.bean.Location;
 
@@ -112,20 +107,20 @@ public class ServerMain implements Runnable{
 			
 			System.out.println("S: Receiving...");  
 			List<Location> locations = new ArrayList<Location>();
-            ObjectInputStream is = null;
+            DataInputStream is = null;
             int i = 0;
             try {  
-                 List<BleBase> bases = null;
                  while(true){
                 	//Thread.sleep(1000);
                 	if(client.getInputStream()!=null){
                 		System.out.println("received!");
-                		is = new ObjectInputStream(client.getInputStream());
-	                	bases =  (List<BleBase>) is.readObject();
-	                	Dealer dealer = new WeightTrilateral();
-	                	loc = dealer.getLocation(bases);
-	                	System.out.print(loc[0]);
-	                	System.out.println(loc[1]);
+                		is = new DataInputStream(client.getInputStream());
+	                	String str =   is.readUTF();
+	                	Dealer dealer = new Trilateral();
+	                	if(dealer.getLocation(str) != null){
+	                		loc = dealer.getLocation(str);
+	                	}
+
 	                	Timestamp ts = new Timestamp(System.currentTimeMillis());
 	                    Location location = new Location("111", loc[0], loc[1], ts);
 	                    locations.add(location);
@@ -147,6 +142,7 @@ public class ServerMain implements Runnable{
                 }
             } 
             catch (Exception e) {  
+            	//e.printStackTrace();
             	try {  
                     if(is != null){  
                     	is.close();  
