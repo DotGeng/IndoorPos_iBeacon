@@ -25,13 +25,13 @@ public class ServerMain implements Runnable{
 	public static final String SERVERIP = "120.32.212.250"; 
 	
 	/*显示客户端连接端口号*/
-    public static final int DISP_SERVERPORT = 50005;  
+    	public static final int DISP_SERVERPORT = 50005;  
     
-    /*定位客户端连接端口号*/
-    public static final int POS_SERVERPORT = 50006; 
+	/*定位客户端连接端口号*/
+	public static final int POS_SERVERPORT = 50006; 
     
-    /*坐标*/
-    private volatile double[] loc =new double[2];
+    	/*坐标*/
+    	private volatile double[] loc =new double[2];
     
     
 	public static void main(String[] args) {
