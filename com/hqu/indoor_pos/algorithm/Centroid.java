@@ -3,6 +3,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Map;
 import com.hqu.indoor_pos.bean.BleBase;
 import com.hqu.indoor_pos.bean.Coordinate;
 import com.hqu.indoor_pos.bean.EnvFactor;
+import com.hqu.indoor_pos.bean.Location;
 import com.hqu.indoor_pos.bean.Round;
 
 
@@ -23,6 +25,9 @@ public class Centroid implements Dealer{
 	/*所有组合的总权值*/
 	private double totalWeight;
 	
+	/*定位结果*/
+	private Location location;
+	
 	/**
      * <p>
      * 求定位终端坐标
@@ -30,15 +35,50 @@ public class Centroid implements Dealer{
      * 
      * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
      * 
-     * @return double[]	返回定位坐标。
+     * @return Location	返回定位结果对象。
      *    
      */
 	@Override
-	public double[] getLocation(String str){
+	public Location getLocation(String str){
 		
 		/*分组*/
 		DoGroup doGrouper = new DoGroup();
-		ArrayList<BleBase> uniqueBases = doGrouper.doGroup(bases);
+		ArrayList<BleBase> uniqueBases = doGrouper.doGroup(str);
+		
+		/*如果收到的基站个数小于3，不能定位，直接返回*/
+		if(uniqueBases==null){
+			return null;
+		}
+		
+		Connection conn = DBUtil.getConnection();
+		
+		String maxRssiBaseId = uniqueBases.get(0).getId();
+		
+		/*根据rssi值最大的基站去数据库中查找相应的坐标系id*/
+		try {
+			PreparedStatement stat = conn.prepareStatement("select coordinate_id from base_station where base_id="+maxRssiBaseId);
+			ResultSet rs = stat.executeQuery();
+			rs.next();
+			location.setCoordinateSys(rs.getInt(1));
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} 
+		
+		/*拿到终端id*/
+		String[] str1 = str.split(";");
+		String terminalId = str1[str1.length-1];
+		
+		/*查找该终端对应的员工id*/
+		try {
+			PreparedStatement stat1 = conn.prepareStatement("select emp_id from emplyee where terminal_id="+terminalId);
+			ResultSet rs1 = stat1.executeQuery();
+			rs1.next();
+			location.setEmPid(rs1.getString(1));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		/*求组合数*/
 		Integer[] a = doGrouper.getA();
@@ -73,7 +113,12 @@ public class Centroid implements Dealer{
 			
 		}
 		
-		double[] location = new double[]{tempLocation[0]/totalWeight,tempLocation[1]/totalWeight};
+		location.setxAxis(tempLocation[0]/totalWeight);
+		location.setxAxis(tempLocation[1]/totalWeight);
+		
+		/*设置定位结果的时间戳*/
+		Timestamp ts = new Timestamp(System.currentTimeMillis());
+		location.setTimeStamp(ts);
 		
 		return location;
 	}
@@ -101,7 +146,7 @@ public class Centroid implements Dealer{
 		
 		double[] rawLocation;
 		
-		double[] location;
+		double[] loc;
 		
 		int j = 0;
 		
@@ -117,20 +162,21 @@ public class Centroid implements Dealer{
 			j++;
 		}
 		
-		/*基站的坐标信息应当根据id去数据库中查找*/
-		/*如果每次参加运算的基站数大于3，可以用StringBuilder拼接sql语句*/
+		
 		Connection conn = DBUtil.getConnection();
 		try {
+			/*基站的坐标信息应当根据id去数据库中查找*/
+			/*如果每次参加运算的基站数大于3，可以用StringBuilder拼接sql语句*/
 			PreparedStatement stat = conn.prepareStatement("select base_id,x_axis,y_axis from base_station where base_id in (?,?,?)");
 			for(int k=0;k<j;k++){
 				stat.setString(k+1, ids[k]);
 			}
 			ResultSet rs = stat.executeQuery();
 			while(rs.next()){
-				double[] loc = new double[2];
-				loc[0]=rs.getDouble(2);
-				loc[1]=rs.getDouble(3);
-				basesLocation.put(rs.getString(1), loc);
+				double[] loc1 = new double[2];
+				loc1[0]=rs.getDouble(2);
+				loc1[1]=rs.getDouble(3);
+				basesLocation.put(rs.getString(1), loc1);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -157,15 +203,15 @@ public class Centroid implements Dealer{
 		
 		totalWeight+=weight;
 		
-		/*实例化结果数组*/
-		location = new double[2];
+		/*实例化坐标数组*/
+		loc = new double[2];
 		
 		/*计算加权过后的坐标*/
 		for(int i = 0; i < 2; i++) {
-			location[i] = rawLocation[i]*weight;
+			loc[i] = rawLocation[i]*weight;
 		}
 		
-		return location;
+		return loc;
 	}
 	
 	/**
