@@ -7,22 +7,42 @@ import java.sql.Timestamp;
  * @author megagao
  */
 public class Location {
-
+	
+	private Integer coordinateId;
+	
 	private String emPid;
 	
-	private Double xAxix;
+	private Double xAxis;
 	
-	private Double yAxix;
+	private Double yAxis;
 	
 	private Timestamp timeStamp;
 
-	public Location(String emPid, Double xAxix, Double yAxix,
+	public Location(String emPid, Double xAxis, Double yAxis,
 			Timestamp timeStamp) {
 		super();
 		this.emPid = emPid;
-		this.xAxix = xAxix;
-		this.yAxix = yAxix;
+		this.xAxis = xAxis;
+		this.yAxis = yAxis;
 		this.timeStamp = timeStamp;
+	}
+	
+	public Location(Integer coordinateId, String emPid, Double xAxis,
+			Double yAxis, Timestamp timeStamp) {
+		super();
+		this.coordinateId = coordinateId;
+		this.emPid = emPid;
+		this.xAxis = xAxis;
+		this.yAxis = yAxis;
+		this.timeStamp = timeStamp;
+	}
+
+	public Integer getCoordinateSys() {
+		return coordinateId;
+	}
+
+	public void setCoordinateSys(Integer coordinateId) {
+		this.coordinateId = coordinateId;
 	}
 
 	public String getEmPid() {
@@ -33,20 +53,20 @@ public class Location {
 		this.emPid = emPid;
 	}
 
-	public Double getxAxix() {
-		return xAxix;
+	public Double getxAxis() {
+		return xAxis;
 	}
 
-	public void setxAxix(Double xAxix) {
-		this.xAxix = xAxix;
+	public void setxAxis(Double xAxis) {
+		this.xAxis = xAxis;
 	}
 
-	public Double getyAxix() {
-		return yAxix;
+	public Double getyAxis() {
+		return yAxis;
 	}
 
-	public void setyAxix(Double yAxix) {
-		this.yAxix = yAxix;
+	public void setyAxis(Double yAxis) {
+		this.yAxis = yAxis;
 	}
 
 	public Timestamp getTimeStamp() {
@@ -59,8 +79,8 @@ public class Location {
 
 	@Override
 	public String toString() {
-		return  emPid +"在"+ timeStamp + "时的位置是" + xAxix + ","
-				+ yAxix;
+		return  emPid +"在"+ timeStamp + "时的位置是" + xAxis + ","
+				+ yAxis;
 	}
 	
 	
