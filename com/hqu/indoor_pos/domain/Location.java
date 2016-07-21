@@ -8,14 +8,19 @@ import java.sql.Timestamp;
  */
 public class Location {
 	
-	private Integer coordinateId;
-	
+	/*员工id*/
 	private String emPid;
 	
+	/*所处坐标系id*/
+	private Integer coordinateId;
+	
+	/*x轴坐标*/
 	private Double xAxis;
 	
+	/*y轴坐标*/
 	private Double yAxis;
 	
+	/*时间戳*/
 	private Timestamp timeStamp;
 
 	public Location(String emPid, Double xAxis, Double yAxis,
