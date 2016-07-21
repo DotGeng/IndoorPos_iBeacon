@@ -1,8 +1,8 @@
 package com.hqu.indoor_pos;
 
-import java.util.List;
 
-import com.hqu.indoor_pos.bean.BleBase;
+import com.hqu.indoor_pos.bean.Location;
+
 
 /**
  * <p>定位算法的父接口</p>
@@ -18,9 +18,9 @@ public interface Dealer {
      * 
      * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
      * 
-     * @return double[]	返回定位坐标。
+     * @return Location	返回定位结果对象。。
      *    
      */
-	public double[] getLocation(List<BleBase> bases);
+	public Location getLocation(String str);
 	
 }
