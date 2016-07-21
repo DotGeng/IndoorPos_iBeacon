@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Map;
 
 import com.hqu.indoor_pos.bean.BleBase;
 import com.hqu.indoor_pos.bean.EnvFactor;
+import com.hqu.indoor_pos.bean.Location;
 
 import Jama.Matrix;
 
@@ -21,39 +23,49 @@ import Jama.Matrix;
  */
 public class Trilateral implements Dealer{
 	
+	/*定位结果*/
+	private Location location;
+	
 	/**
-     * <p>
-     * 求定位终端坐标
-     * </p>
-     * 
-     * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
-     * 
-     * @return double[]	返回定位坐标。
-     *    
-     */
+     	 * <p>
+     	 * 求定位终端坐标
+     	 * </p>
+     	 * 
+     	 * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
+     	 * 
+     	 * @return Location	返回定位结果对象。
+     	 *    
+     	 */
 	@Override
-	public double[] getLocation(String str){
+	public Location getLocation(String str){
 		
 		/*分组*/
 		DoGroup doGrouper = new DoGroup();
-		ArrayList<BleBase> uniqueBases = doGrouper.doGroup(bases);
+		ArrayList<BleBase> uniqueBases = doGrouper.doGroup(str);
 		
-		double[] location = calculate(uniqueBases);
+		/*如果收到的基站个数小于3，不能定位，直接返回*/
+		if(uniqueBases==null){
+			return null;
+		}
 		
-		return location;
+		String[] str1 = str.split(";");
+		
+		String terminalId = str1[str1.length-1];
+		
+		return calculate(uniqueBases,terminalId);
 	}
 	
-	 /**
-     * <p>
-     * 求定位坐标
-     * </p>
-     * 
-     * @param bases	接收到的一组基站对象列表，此处列表中的基站应当是id各异的。
-     * 
-     * @return double[]	返回定位坐标。
-     *    
-     */
-	public double[] calculate(List<BleBase> bases){
+	/**
+     	 * <p>
+     	 * 求出一组基站通过距离加权后的坐标
+     	 * </p>
+     	 * 
+     	 * @param bases	接收到的一组基站对象列表，此处列表中的基站应当是id各异的。
+     	 * 
+     	 * @return double[]	返回一组基站通过距离加权后的坐标。
+     	 *    
+     	 */
+	public Location calculate(List<BleBase> bases, String terminalId){
 		
 		/*基站的id与坐标*/
 		Map<String, double[]> basesLocation =new HashMap<String, double[]>();
@@ -64,8 +76,6 @@ public class Trilateral implements Dealer{
 		double[] distanceArray = new double[baseNum];
 		
 		String[] ids = new String[baseNum];
-		
-		double[] location = new double[2];
 		
 		int j = 0;
 		
@@ -143,10 +153,30 @@ public class Trilateral implements Dealer{
 		Matrix resultMatrix = tmpMatrix2.times(b1);
 		double[][] resultArray = resultMatrix.getArray();
 		
-		/*给未加权的结果数组赋值*/
-		for(int i = 0; i < 2; i++) {
-			location[i] = resultArray[i][0];
+		location.setxAxis(resultArray[0][0]);
+		location.setyAxis(resultArray[1][0]);
+		
+		try {
+			/*根据rssi值最大的基站去数据库中查找相应的坐标系id*/
+			PreparedStatement stat = conn.prepareStatement("select coordinate_id from base_station where base_id=?");
+			stat.setString(1, ids[0]);
+			ResultSet rs = stat.executeQuery();
+			rs.next();
+			location.setCoordinateSys(rs.getInt(1)); 
+			
+			/*查找该终端对应的员工id*/
+			PreparedStatement stat1 = conn.prepareStatement("select emp_id from emplyee where terminal_id=?"+terminalId);
+			ResultSet rs1 = stat1.executeQuery();
+			rs1.next();
+			location.setEmPid(rs1.getString(1));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		
+		/*设置定位结果的时间戳*/
+		Timestamp ts = new Timestamp(System.currentTimeMillis());
+		location.setTimeStamp(ts);
 		
 		return location;
 	}
