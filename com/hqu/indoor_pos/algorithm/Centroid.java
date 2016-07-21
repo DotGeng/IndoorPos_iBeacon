@@ -29,15 +29,15 @@ public class Centroid implements Dealer{
 	private Location location;
 	
 	/**
-     * <p>
-     * 求定位终端坐标
-     * </p>
-     * 
-     * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
-     * 
-     * @return Location	返回定位结果对象。
-     *    
-     */
+	 * <p>
+     	 * 求定位终端坐标
+     	 * </p>
+     	 * 
+     	 * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
+     	 * 
+     	 * @return Location	返回定位结果对象。
+     	 *    
+     	 */
 	@Override
 	public Location getLocation(String str){
 		
@@ -124,16 +124,16 @@ public class Centroid implements Dealer{
 	}
 
 	
-	 /**
-     * <p>
-     * 求出一组基站通过距离加权后的坐标
-     * </p>
-     * 
-     * @param  bases	接收到的一组基站对象列表，此处列表中的基站应当是id各异的。
-     * 
-     * @return double[]	返回一组基站通过距离加权后的坐标。
-     *    
-     */
+	/**
+     	 * <p>
+     	 * 求出一组基站通过距离加权后的坐标
+     	 * </p>
+     	 * 
+     	 * @param  bases	接收到的一组基站对象列表，此处列表中的基站应当是id各异的。
+      	 * 
+     	 * @return double[]	返回一组基站通过距离加权后的坐标。
+     	 *    
+     	 */
 	public double[] calculate(List<BleBase> bases){
 		
 		/*基站的id与坐标*/
@@ -216,8 +216,8 @@ public class Centroid implements Dealer{
 	
 	/**
 	 * 
-     * 求三角形质心算法
-     * 
+     	 * 求三角形质心算法
+     	 * 
 	 * @param r1 Round对象
 	 * @param r2
 	 * @param r3
