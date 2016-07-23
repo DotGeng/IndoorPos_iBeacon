@@ -1,4 +1,4 @@
-package com.hqu.indoor_pos.util2;
+package com.hqu.indoor_pos.server;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
