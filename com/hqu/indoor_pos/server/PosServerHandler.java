@@ -1,4 +1,4 @@
-package com.hqu.indoor_pos.util2;
+package com.hqu.indoor_pos.server;
 
 
 import java.sql.Connection;
