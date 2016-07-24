@@ -17,7 +17,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 public class PosServerHandler extends ChannelHandlerAdapter {
 
-	public  static AtomicInteger i;
+	public  static AtomicInteger i = new AtomicInteger();
 	
 	public  static Map<Integer,Location> locsToDB = new ConcurrentHashMap<Integer,Location>();
 	
