@@ -32,30 +32,26 @@ public class PosServerHandler extends ChannelHandlerAdapter {
         System.out.println(msg);
         Location loc = Server.dealer.getLocation(str);
         
-        if(loc != null){
-	        String resultStr = loc.getEmPid()+","+loc.getCoordinateSys()+","+loc.getxAxis()+","+loc.getyAxis();
-	        Server.locs.put(resultStr);
-	        locsToDB.put(i.incrementAndGet(), loc);
-	        if(i.get()>=20){
-	        	synchronized (this) {
-	        		if(i.get()>=20){
-		             	Connection conn = DBUtil.getConnection();
-		                PreparedStatement stat = conn.prepareStatement("insert into location(em_pid,x_axis,y_axis,timestamp,coordinate_id) values(?,?,?,?,?)");
-		             	int j = i.get();
-		                for (int k=1; k<=j; k++){
-		             		Location location = locsToDB.get(k);
-		                    	stat.setString(1, location.getEmPid());
-		                    	stat.setDouble(2, location.getxAxis());
-		                    	stat.setDouble(3, location.getyAxis());
-		                    	stat.setTimestamp(4, location.getTimeStamp());
-		                    	stat.setInt(5, location.getCoordinateSys());
-		                    	stat.executeUpdate();
-		                }
-		             	i.set(0);
-		             	locsToDB = new ConcurrentHashMap<Integer,Location>();
-	        		}
-	             }
-		}
+        if(loc!=null){
+        	String resultStr = loc.getEmPid()+","+loc.getCoordinateSys()+","+loc.getxAxis()+","+loc.getyAxis();
+            	Server.locs.put(resultStr);
+            	int j = i.incrementAndGet();
+            	locsToDB.put(j, loc);
+    		if(j==20){
+	             	Connection conn = DBUtil.getConnection();
+	                PreparedStatement stat = conn.prepareStatement("insert into location(em_pid,x_axis,y_axis,timestamp,coordinate_id) values(?,?,?,?,?)");
+	                for (int k=1; k<=j; k++){
+	             		Location location = locsToDB.get(k);
+	                    	stat.setString(1, location.getEmPid());
+	                    	stat.setDouble(2, location.getxAxis());
+	                    	stat.setDouble(3, location.getyAxis());
+	                    	stat.setTimestamp(4, location.getTimeStamp());
+	                    	stat.setInt(5, location.getCoordinateSys());
+	                    	stat.executeUpdate();
+	                }
+	             	i.set(0);
+	             	locsToDB = new ConcurrentHashMap<Integer,Location>();
+    		}
         }
         
 
