@@ -37,6 +37,10 @@ public class Location {
 		this.timeStamp = timeStamp;
 	}
 
+	public Location() {
+		super();
+	}
+	
 	public Integer getCoordinateSys() {
 		return coordinateId;
 	}
