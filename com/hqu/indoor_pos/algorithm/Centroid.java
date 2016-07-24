@@ -1,4 +1,5 @@
 package com.hqu.indoor_pos.algorithm;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
