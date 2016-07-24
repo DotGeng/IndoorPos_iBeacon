@@ -42,6 +42,9 @@ public class WeightTrilateral implements Dealer{
 	@Override
 	public Location getLocation(String str){
 		
+		/*实例化定位结果*/
+		location = new Location();
+		
 		/*分组*/
 		DoGroup doGrouper = new DoGroup();
 		ArrayList<BleBase> uniqueBases = doGrouper.doGroup(str);
