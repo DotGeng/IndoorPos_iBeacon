@@ -168,7 +168,7 @@ public class Trilateral implements Dealer{
 			location.setCoordinateSys(rs.getInt(1)); 
 			
 			/*查找该终端对应的员工id*/
-			PreparedStatement stat1 = conn.prepareStatement("select emp_id from employee where terminal_id=?"+terminalId);
+			PreparedStatement stat1 = conn.prepareStatement("select emp_id from employee where terminal_id="+terminalId);
 			ResultSet rs1 = stat1.executeQuery();
 			rs1.next();
 			location.setEmPid(rs1.getString(1));
