@@ -28,11 +28,6 @@ public class PosServerHandler extends ChannelHandlerAdapter {
         ByteBuf buf = (ByteBuf) msg;
         byte[] req = new byte[buf.readableBytes()];
         buf.readBytes(req);
-        String body = new String(req, "UTF-8");
-        System.out.println(body);
-        /*ByteBuf buf = (ByteBuf) msg;
-        byte[] req = new byte[buf.readableBytes()];
-        buf.readBytes(req);
         String str = new String(req, "UTF-8");
         System.out.println(msg);
         Location loc = Server.dealer.getLocation(str);
@@ -57,7 +52,7 @@ public class PosServerHandler extends ChannelHandlerAdapter {
 	             	i.set(0);
 	             	locsToDB = new ConcurrentHashMap<Integer,Location>();
         		}
-             }*/
+             }
 		}
        
         
