@@ -27,7 +27,7 @@ public class DoGroup {
      * 根据传进来的基站列表，将基站进行分组，得到每个基站rssi的去除极端值的均值所组成的列表。
      * </p>
      * 
-     * @param  bases	接收到的一组基站对象列表
+     * @param  str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
      * 
      * @return ArrayList<BleBase>	返回每个基站rssi的去除极端值的均值所组成的列表。
      *    
