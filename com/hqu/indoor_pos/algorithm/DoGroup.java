@@ -43,11 +43,11 @@ public class DoGroup {
 		
 		List<BleBase> uniqueBases = dealByGroup(groupedBases);
 		
-		/*如果接收到的基站信号个数大于4个，那么就取RSSI值最大的4个用来定位*/
+		/*如果接收到的基站信号个数大于3个，那么就取RSSI值最大的3个用来定位*/
 		int len = uniqueBases.size();
-		if(len>4){
+		if(len>3){
 			Collections.sort(uniqueBases);
-			return (ArrayList<BleBase>) uniqueBases.subList(len-4, len);
+			return (ArrayList<BleBase>) uniqueBases.subList(len-3, len);
 		}
 		
 		return (ArrayList<BleBase>) uniqueBases;
