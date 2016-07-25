@@ -32,11 +32,23 @@ public class DoGroup {
      * @return ArrayList<BleBase>	返回每个基站rssi的去除极端值的均值所组成的列表。
      *    
      */
-	public ArrayList<BleBase> doGroup(List<BleBase> bases) {
+	public ArrayList<BleBase> doGroup(String str) {
 		
-		Map<String, Group> groupedBases = group(bases);
+		Map<String, Group> groupedBases = group(str);
+		
+		/*如果接收到的不同基站信号小于3个，不能定位，直接返回*/
+		if(groupedBases.size()<3){
+			return null;
+		}
 		
 		List<BleBase> uniqueBases = dealByGroup(groupedBases);
+		
+		/*如果接收到的基站信号个数大于4个，那么就取RSSI值最大的4个用来定位*/
+		int len = uniqueBases.size();
+		if(len>4){
+			Collections.sort(uniqueBases);
+			return (ArrayList<BleBase>) uniqueBases.subList(len-4, len);
+		}
 		
 		return (ArrayList<BleBase>) uniqueBases;
 	}
@@ -52,24 +64,30 @@ public class DoGroup {
      * 								Group对象封装了所有接收到的该基站的所有rssi值列表。
      *    
      */
-	public Map<String, Group> group(List<BleBase> bases) {
+	public Map<String, Group> group(String str) {
 		
 		Map<String, Group> groupedBases = new HashMap<String, Group>();
+		
+		String[] str1 = str.split(";");
 		
 		/*由Set集合存放unique id值*/
 		Set<String> ids = new HashSet<String>();
 		
-		for(BleBase base : bases){
-			ids.add(base.getId());
+		for(int i=0;i<str1.length-1;i++){
+			ids.add(str1[i].split(",")[0]);
 		}
 		
+		/*for(BleBase base : bases){
+			ids.add(base.getId());
+		}
+		*/
 		for(String id : ids){
 			groupedBases.put(id, new Group());
 		}
 		
-		for (BleBase each : bases) {
-			Group group = groupedBases.get(each.getId());
-			group.getRssis().add(each.getRssi());
+		for(int i=0;i<str1.length-1;i++) {
+			Group group = groupedBases.get(str1[i].split(",")[0]);
+			group.getRssis().add(Integer.parseInt(str1[i].split(",")[1]));
 		}
 		
 		return  groupedBases;
@@ -159,7 +177,7 @@ public class DoGroup {
         Collections.sort(ls);
         
 		if(ls.size()%2==0){
-        	m = (ls.get(ls.size()/2)+ls.get(ls.size()/2+1))/2;
+        	m = (ls.get((ls.size()/2)-1)+ls.get(ls.size()/2))/2;
         }else{
         	m=(ls.get(ls.size()/2));
         }
