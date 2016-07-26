@@ -1,15 +1,19 @@
-package com.hqu.indoor_pos.server;
+package com.hqu.indoor_pos.util2;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.hqu.indoor_pos.Dealer;
 import com.hqu.indoor_pos.Trilateral;
+import com.hqu.indoor_pos.WeightTrilateral;
 import com.hqu.indoor_pos.bean.EnvFactor;
+import com.hqu.indoor_pos.bean.Location;
 import com.hqu.indoor_pos.util.DBUtil;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -20,21 +24,31 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
 
 
 public class Server {
 	
-	public static BlockingQueue<String> locs;
+	public static BlockingQueue<Location> locs;
 	
 	public static Dealer dealer;
 	
+	public static Map<String,String> empIds;
+	
+	public static Map<String,Integer> coordinateIds;
+	
     public static void main(String[] args) throws Exception {
     	
-        int port = 5006;
+        int port = 50006;
         
         locs = new LinkedBlockingQueue<>();
         
         dealer = new Trilateral();
+        
+        empIds = new HashMap<String, String>();
+        
+        coordinateIds = new HashMap<String, Integer>();
         
         Connection conn = DBUtil.getConnection();
 		try {
@@ -45,6 +59,28 @@ public class Server {
 			EnvFactor.setHeight(rs.getDouble(1));//设置高度补偿值
 			EnvFactor.setN(rs.getDouble(2));//设置环境衰减因子
 			EnvFactor.setP0(rs.getDouble(3));//设置一米处接收到的rssi值
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			PreparedStatement stat; 
+			stat = conn.prepareStatement("select terminal_id,emp_id from employee");
+			ResultSet rs = stat.executeQuery();
+			while(rs.next()){
+				empIds.put(rs.getString(1), rs.getString(2));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			PreparedStatement stat; 
+			stat = conn.prepareStatement("select base_id,coordinate_id from base_station");
+			ResultSet rs = stat.executeQuery();
+			while(rs.next()){
+				coordinateIds.put(rs.getString(1), rs.getInt(2));
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -98,12 +134,11 @@ public class Server {
         protected void initChannel(SocketChannel sc) throws Exception {
         	
             System.out.println("server initChannel..");
-            // 解码转String
-            //sc.pipeline().addLast(new StringDecoder());
+            // LineBasedFrameDecoder解码器
+            sc.pipeline().addLast(new LineBasedFrameDecoder(1024));
             //sc.pipeline().addLast(new ByteArrayEncoder());
-     
-    		// 编码器 String
-            //sc.pipeline().addLast(new StringEncoder()); 
+            // 解码转String
+            sc.pipeline().addLast(new StringDecoder());
             
             //业务处理
             sc.pipeline().addLast(new PosServerHandler());
