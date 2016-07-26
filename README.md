@@ -17,3 +17,5 @@ This is an tool for Indoor positioning using iBeacon.
 7.18更新 综合考虑终端的计算复杂度与网络传输流量，优化了服务器端与定位终端的数据传输，减少网络传输流量。
 
 7.22更新 配置了c3p0数据库连接池。
+
+7.26更新 修复了TCP粘包的问题。
