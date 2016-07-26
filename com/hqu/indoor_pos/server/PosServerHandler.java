@@ -1,59 +1,32 @@
-package com.hqu.indoor_pos.server;
+package com.hqu.indoor_pos.util2;
 
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.hqu.indoor_pos.bean.Location;
-import com.hqu.indoor_pos.util.DBUtil;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 
 public class PosServerHandler extends ChannelHandlerAdapter {
 
-	public  static AtomicInteger i = new AtomicInteger();
-	
 	public  static Map<Integer,Location> locsToDB = new ConcurrentHashMap<Integer,Location>();
 	
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
             throws Exception {
         System.out.println("server channelRead..");
-        ByteBuf buf = (ByteBuf) msg;
-        byte[] req = new byte[buf.readableBytes()];
-        buf.readBytes(req);
-        String str = new String(req, "UTF-8");
-        System.out.println(msg);
-        Location loc = Server.dealer.getLocation(str);
-        
+        String str = (String) msg;
+        System.out.println(str);
+    	Location loc = Server.dealer.getLocation(str);
         if(loc!=null){
-        	String resultStr = loc.getEmPid()+","+loc.getCoordinateSys()+","+loc.getxAxis()+","+loc.getyAxis();
-            	Server.locs.put(resultStr);
-            	int j = i.incrementAndGet();
-            	locsToDB.put(j, loc);
-    		if(j==20){
-	             	Connection conn = DBUtil.getConnection();
-	                PreparedStatement stat = conn.prepareStatement("insert into location(em_pid,x_axis,y_axis,timestamp,coordinate_id) values(?,?,?,?,?)");
-	                for (int k=1; k<=j; k++){
-	             		Location location = locsToDB.get(k);
-	                    	stat.setString(1, location.getEmPid());
-	                    	stat.setDouble(2, location.getxAxis());
-	                    	stat.setDouble(3, location.getyAxis());
-	                    	stat.setTimestamp(4, location.getTimeStamp());
-	                    	stat.setInt(5, location.getCoordinateSys());
-	                    	stat.executeUpdate();
-	                }
-	             	i.set(0);
-	             	locsToDB = new ConcurrentHashMap<Integer,Location>();
-    		}
+            Server.locs.put(loc);
         }
-        
+       
+    }   
+    
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
@@ -65,6 +38,7 @@ public class PosServerHandler extends ChannelHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
         System.out.println("server exceptionCaught..");
+        cause.printStackTrace();
         ctx.close();
     }
 
