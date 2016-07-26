@@ -13,6 +13,8 @@ import java.util.Map;
 import com.hqu.indoor_pos.bean.BleBase;
 import com.hqu.indoor_pos.bean.EnvFactor;
 import com.hqu.indoor_pos.bean.Location;
+import com.hqu.indoor_pos.util.DBUtil;
+import com.hqu.indoor_pos.util2.Server;
 
 import Jama.Matrix;
 
@@ -27,15 +29,15 @@ public class Trilateral implements Dealer{
 	private Location location;
 	
 	/**
-     	 * <p>
-     	 * 求定位终端坐标
-     	 * </p>
-     	 * 
-     	 * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
-     	 * 
-     	 * @return Location	返回定位结果对象。
-     	 *    
-     	 */
+     * <p>
+     * 求定位终端坐标
+     * </p>
+     * 
+     * @param str  接收到的一组基站组成的字符串格式为“id,rssi;id,rssi........id,rssi;terminalID”
+     * 
+     * @return Location	返回定位结果对象。
+     *    
+     */
 	@Override
 	public Location getLocation(String str){
 		
@@ -59,15 +61,15 @@ public class Trilateral implements Dealer{
 	}
 	
 	/**
-     	 * <p>
-     	 * 求出一组基站通过距离加权后的坐标
-     	 * </p>
-     	 * 
-     	 * @param bases	接收到的一组基站对象列表，此处列表中的基站应当是id各异的。
-     	 * 
-     	 * @return double[]	返回一组基站通过距离加权后的坐标。
-     	 *    
-     	 */
+     * <p>
+     * 求出一组基站通过距离加权后的坐标
+     * </p>
+     * 
+     * @param bases	接收到的一组基站对象列表，此处列表中的基站应当是id各异的。
+     * 
+     * @return double[]	返回一组基站通过距离加权后的坐标。
+     *    
+     */
 	public Location calculate(List<BleBase> bases, String terminalId){
 		
 		/*基站的id与坐标*/
@@ -96,7 +98,13 @@ public class Trilateral implements Dealer{
 		
 		/*基站的坐标信息应当根据id去数据库中查找*/
 		/*如果每次参加运算的基站数大于3，可以用StringBuilder拼接sql语句*/
-		Connection conn = DBUtil.getConnection();
+		Connection conn = null;
+		try {
+			conn = DBUtil.getConnection();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			StringBuilder str = new StringBuilder();
 			str.append("select base_id,x_axis,y_axis from base_station where base_id in (");
@@ -105,18 +113,20 @@ public class Trilateral implements Dealer{
 				str.append(","+ids[k]);
 			}
 			str.append(")");
-			PreparedStatement stat = conn.prepareStatement(str.toString());
-			ResultSet rs = stat.executeQuery();
+			PreparedStatement stmt = conn.prepareStatement(str.toString());
+			ResultSet rs = stmt.executeQuery();
 			while(rs.next()){
 				double[] loc = new double[2];
 				loc[0]=rs.getDouble(2);
 				loc[1]=rs.getDouble(3);
 				basesLocation.put(rs.getString(1), loc);
 			}
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+			
 		
 		int disArrayLength = distanceArray.length;
 		
@@ -159,15 +169,15 @@ public class Trilateral implements Dealer{
 		location.setxAxis(resultArray[0][0]);
 		location.setyAxis(resultArray[1][0]);
 		
-		try {
-			/*根据rssi值最大的基站去数据库中查找相应的坐标系id*/
+		/*try {
+			根据rssi值最大的基站去数据库中查找相应的坐标系id
 			PreparedStatement stat = conn.prepareStatement("select coordinate_id from base_station where base_id=?");
 			stat.setString(1, ids[0]);
 			ResultSet rs = stat.executeQuery();
 			rs.next();
 			location.setCoordinateSys(rs.getInt(1)); 
 			
-			/*查找该终端对应的员工id*/
+			查找该终端对应的员工id
 			PreparedStatement stat1 = conn.prepareStatement("select emp_id from employee where terminal_id="+terminalId);
 			ResultSet rs1 = stat1.executeQuery();
 			rs1.next();
@@ -175,8 +185,16 @@ public class Trilateral implements Dealer{
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}*/
+		location.setCoordinateSys(Server.coordinateIds.get(ids[0])); 
+		location.setEmPid(Server.empIds.get(terminalId));
 		/*设置定位结果的时间戳*/
 		Timestamp ts = new Timestamp(System.currentTimeMillis());
 		location.setTimeStamp(ts);
