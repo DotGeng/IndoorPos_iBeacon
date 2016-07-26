@@ -1,15 +1,25 @@
-package com.hqu.indoor_pos.server;
+package com.hqu.indoor_pos.util2;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.hqu.indoor_pos.bean.Location;
+import com.hqu.indoor_pos.util.DBUtil;
 
 
 public class DispServer {
 
 	/*显示客户端连接端口号*/
     public static final int DISP_SERVERPORT = 5005; 
+    int i = 0;
+    public Map<Integer, Location> locsToDB = new HashMap<Integer, Location>();
     
 	public void startDispServer() {
 		/*启动显示客户端监听线程*/
@@ -70,17 +80,32 @@ public class DispServer {
             DataOutputStream os = null;  
             try {  
                  while(true){
-                	String str = Server.locs.take();
+                	Location loc = Server.locs.take();
                 	os = new DataOutputStream(dispClient.getOutputStream()); 
-                    os.writeUTF(str);
+                    os.writeUTF(loc.getEmPid()+","+loc.getCoordinateSys()+","+loc.getxAxis()+","+loc.getyAxis());
+                    locsToDB.put(++i, loc);
                     os.flush();
+                    /*if(j==20){
+                      	Connection conn = DBUtil.getConnection();
+                         PreparedStatement stat = conn.prepareStatement("insert into location(em_pid,x_axis,y_axis,timestamp,coordinate_id) values(?,?,?,?,?)");
+                         for (int k=1; k<=j; k++){
+                      		Location location = locsToDB.get(k);
+                             	stat.setString(1, location.getEmPid());
+                             	stat.setDouble(2, location.getxAxis());
+                             	stat.setDouble(3, location.getyAxis());
+                             	stat.setTimestamp(4, location.getTimeStamp());
+                             	stat.setInt(5, location.getCoordinateSys());
+                             	stat.executeUpdate();
+                         }
+                      	i.set(0);
+                      	locsToDB = new ConcurrentHashMap<Integer,Location>();
+             		}*/
                  }
             }  
             catch (Exception e) {  
             	try {
 					dispClient.close();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
             } finally{
