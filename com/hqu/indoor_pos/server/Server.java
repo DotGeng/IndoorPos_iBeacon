@@ -38,17 +38,21 @@ public class Server {
 	
 	public static Map<String,Integer> coordinateIds;
 	
+	public static Map<String,double[]> baseStationLocs;
+	
     public static void main(String[] args) throws Exception {
     	
         int port = 50006;
         
-        locs = new LinkedBlockingQueue<>();
+        locs = new LinkedBlockingQueue<Location>();
         
         dealer = new Trilateral();
         
         empIds = new HashMap<String, String>();
         
         coordinateIds = new HashMap<String, Integer>();
+        
+        baseStationLocs = new HashMap<String,double[]>();
         
         Connection conn = DBUtil.getConnection();
 		try {
