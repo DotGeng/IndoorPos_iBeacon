@@ -21,47 +21,46 @@ import com.hqu.indoor_pos.util.DBUtil;
 public class DispServer {
 
 	/*显示客户端连接端口号*/
-    public static final int DISP_SERVERPORT = 5005;
+	public static final int DISP_SERVERPORT = 5005;
+	
+	private ArrayList<DispClient> dispClients = null;
     
-    private ArrayList<DispClient> dispClients = null;
+    	private int i = 0;
     
-    private int i = 0;
-    
-    public Map<Integer, Location> locsToDB = new HashMap<Integer, Location>();
+    	public Map<Integer, Location> locsToDB = new HashMap<Integer, Location>();
     
 	public void startDispServer() {
 		
 		/*启动显示客户端监听线程*/
-        Thread dispThread =new Thread(new DispThread());  
-        dispThread.start();
-        
-        Location loc = null;
-        
-        while(true){
-        	
-        	try {
+	        Thread dispThread =new Thread(new DispThread());  
+	        dispThread.start();
+	        
+	        Location loc = null;
+	        
+	        while(true){
+	        	
+	        	try {
 				loc = Server.locs.take();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        	
-        	String str = loc.getEmPid()+","+loc.getCoordinateSys()+","+loc.getxAxis()+","+loc.getyAxis();
-        	for (DispClient DispClient : dispClients) {
-				DispClient.sendLoc(str);
-			}
-        	
-        	locsToDB.put(++i, loc);
-        	/*每15条存一次数据库*/
-        	if(i == 15){
-        		Connection conn = null;
+	        	
+	        	String str = loc.getEmPid()+","+loc.getCoordinateSys()+","+loc.getxAxis()+","+loc.getyAxis();
+	        	for (DispClient DispClient : dispClients) {
+					DispClient.sendLoc(str);
+				}
+	        	
+	        	locsToDB.put(++i, loc);
+	        	/*每15条存一次数据库*/
+	        	if(i == 15){
+	        		Connection conn = null;
 				try {
 					conn = DBUtil.getConnection();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-                try {
+	                	try {
 					PreparedStatement stat = conn.prepareStatement("insert into location(em_pid,x_axis,y_axis,timestamp,coordinate_id) values(?,?,?,?,?)");
 					for (int k=1; k<=i; k++){
 						Location location = locsToDB.get(k);
@@ -83,9 +82,10 @@ public class DispServer {
 						e.printStackTrace();
 					}
 				}
-             	locsToDB = new ConcurrentHashMap<Integer,Location>();
-        	}
-        }
+	             		locsToDB = new ConcurrentHashMap<Integer,Location>();
+	        	}
+	        }
+		
 	}
 	
 	/*显示客户端*/
@@ -132,6 +132,7 @@ public class DispServer {
 	}
 	
 	class DispClient implements Runnable {
+		
 		private Socket socket = null;
 		private OutputStream os = null;
 		private DataOutputStream dos = null;
