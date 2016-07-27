@@ -18,4 +18,6 @@ This is an tool for Indoor positioning using iBeacon.
 
 7.22更新 配置了c3p0数据库连接池。
 
-7.26更新 修复了TCP粘包的问题。
+7.24更新 修复了TCP粘包的问题。
+
+7.27更新 引入了高性能NIO框架——Netty，对项目进行了重构，实现高并发。
