@@ -1,6 +1,6 @@
 # IndoorPos
 This is an tool for Indoor positioning using iBeacon. 
-这是一个iBeacon室内定位的工具包，里面包含了两种定位算法，三边加权质心和三角形加权质心算法。
+这是一个采用iBeacon技术的室内定位程序，里面包含了三种定位算法，三边定位算法、加权三边定位算法和三角形加权质心定位算法。
 
 6.17更新 新加入一个最基本的三边定位算法。
 
@@ -8,7 +8,7 @@ This is an tool for Indoor positioning using iBeacon.
 
 6.19更新 新加入一个用Java Swing写的一个简单的桌面端显示程序，以及一个服务器端启动入口类。
 
-6.20更新 新加入了写程序时进行单元测试的类。
+6.20更新 新加入了写程序时进行junit单元测试的类。
 
 7.12更新 修正了算法的sql语句。
 
